@@ -107,6 +107,7 @@ public class PluginGenerator extends AbstractProcessor
         }
         String version = processingEnv.getOptions().getOrDefault("cubeengine.module.version","unknown");
         String id = "cubeengine-" + processingEnv.getOptions().getOrDefault("cubeengine.module.id",element.getSimpleName().toString().toLowerCase());
+        if (core) id = "cubeengine-core";
         String name = "CubeEngine - " + processingEnv.getOptions().getOrDefault("cubeengine.module.name","unknown");
         String description = processingEnv.getOptions().getOrDefault("cubeengine.module.description","unknown");
         String team = processingEnv.getOptions().getOrDefault("cubeengine.module.team","unknown") + " Team";
