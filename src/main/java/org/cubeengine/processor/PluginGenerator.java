@@ -121,7 +121,19 @@ public class PluginGenerator extends AbstractProcessor
             writer.write("import org.spongepowered.api.plugin.Plugin;\n");
             writer.write("import org.spongepowered.api.plugin.Dependency;\n");
             writer.write("import org.cubeengine.libcube.CubeEnginePlugin;\n");
-            if (!core) writer.write("import org.cubeengine.libcube.LibCube;\n");
+            if (core)
+            {
+                writer.write("import org.slf4j.Logger;\n");
+                writer.write("import com.google.inject.Injector;\n");
+                writer.write("import org.spongepowered.api.plugin.PluginContainer;\n");
+                writer.write("import org.cubeengine.libcube.CorePlugin;\n");
+                writer.write("import org.spongepowered.api.config.ConfigDir;\n");
+                writer.write("import java.nio.file.Path;\n");
+            }
+            else
+            {
+                writer.write("import org.cubeengine.libcube.LibCube;\n");
+            }
             writer.write("import org.spongepowered.api.Sponge;\n");
             writer.write(String.format("import %s;\n", moduleClass));
             writer.write("\n");
@@ -140,14 +152,15 @@ public class PluginGenerator extends AbstractProcessor
                     team,
                     dependencies));
             writer.write(String.format(
-                    "public class %s extends CubeEnginePlugin\n"
+                    "public class %s extends %s\n"
                             + "{\n"
                             + "    public static final String %s = \"%s\";\n"
                             + "    public static final String %s = \"%s\";\n"
                             + "\n"
-                            + "    public %s()\n"
+                            + "    %s\n"
+                            + "    public %s(%s)\n"
                             + "    {\n"
-                            + "         super(%s.class);\n"
+                            + "         super(%s);\n"
                             + "    }\n"
                             + "\n"
                             + "    public String sourceVersion()\n"
@@ -156,12 +169,15 @@ public class PluginGenerator extends AbstractProcessor
                             + "    }\n"
                             + "}\n",
                     pluginName,
+                    core ? "CorePlugin" : "CubeEnginePlugin",
                     simpleName.toUpperCase() + "_ID",
                     id,
                     simpleName.toUpperCase() + "_VERSION",
                     version,
+                    core ? "@Inject" : "",
                     pluginName,
-                    element.getSimpleName(),
+                    core ? "@ConfigDir(sharedRoot = true) Path path, Logger logger, Injector injector, PluginContainer container" : "",
+                    core ? "path, logger, injector, container" : element.getSimpleName() + ".class",
                     sourceVersion));
         }
         catch (IOException e)
