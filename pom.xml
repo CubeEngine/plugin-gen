@@ -8,10 +8,10 @@
         <version>6</version>
     </parent>
 
-    <artifactId>module-processor</artifactId>
-    <name>Module Processor</name>
-    <version>1.0.1-SNAPSHOT</version>
-    <description>Make Modules be Plugins</description>
+    <artifactId>plugin-gen</artifactId>
+    <name>CubeEngine Plugin Generator</name>
+    <version>1.0.0</version>
+    <description>Generate Plugins</description>
 
     <distributionManagement>
         <repository>
