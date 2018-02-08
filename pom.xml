@@ -10,7 +10,7 @@
 
     <artifactId>plugin-gen</artifactId>
     <name>CubeEngine Plugin Generator</name>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <description>Generate Plugins</description>
 
     <distributionManagement>
