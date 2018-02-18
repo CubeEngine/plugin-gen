@@ -10,7 +10,7 @@
 
     <artifactId>plugin-gen</artifactId>
     <name>CubeEngine Plugin Generator</name>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.2</version>
     <description>Generate Plugins</description>
 
     <distributionManagement>
@@ -31,7 +31,7 @@
         <url>scm:git:https://github.com/CubeEngine/module-processor</url>
         <connection>scm:git:https://github.com/CubeEngine/module-processor.git</connection>
         <developerConnection>scm:git:git@github.com:CubeEngine/module-processor.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>plugin-gen-1.0.2</tag>
     </scm>
 
     <build>
