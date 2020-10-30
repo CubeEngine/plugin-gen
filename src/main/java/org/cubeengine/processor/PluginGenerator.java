@@ -199,7 +199,7 @@ public class PluginGenerator extends AbstractProcessor
             final String jsonDeps = allDeps.stream().map(d -> String.format("{\n%s}",
                     tab4 + jsonKeyValue("id", d.value()) +
                     tab4 + jsonKeyValue("version", d.version(), !d.optional()) +
-                    (d.optional() ?  tab4 + jsonKeyValue("optional", "true") : "") +
+                    (d.optional() ?  tab4 + jsonKeyValue("optional", true, true) : "") +
                     tab3))
                     .collect(Collectors.joining(",\n" + tab3));
             writer.write(tab3 + String.format("\"dependencies\": [%s],\n", jsonDeps));
@@ -242,6 +242,10 @@ public class PluginGenerator extends AbstractProcessor
 
     private String jsonKeyValue(String key, String value, boolean last) {
         return String.format("\"%s\": \"%s\"%s\n", key, value, last ? "" : ",");
+    }
+
+    private String jsonKeyValue(String key, boolean value, boolean last) {
+        return String.format("\"%s\": %s%s\n", key, value, last ? "" : ",");
     }
 
     public Dependency getCoreDep() {
