@@ -94,6 +94,8 @@ public class PluginGenerator extends AbstractProcessor
     }
 
     private void buildSource(TypeElement element, List<Dependency> allDeps, boolean core) {
+        allDeps.add(getSpongeAPIDep());
+
         Name packageName = ((PackageElement) element.getEnclosingElement()).getQualifiedName();
         String pluginName = "Plugin" + element.getSimpleName();
         String simpleName = element.getSimpleName().toString();
@@ -258,6 +260,30 @@ public class PluginGenerator extends AbstractProcessor
             @Override
             public String version() {
                 return processingEnv.getOptions().getOrDefault("cubeengine.module.libcube.version", "unknown");
+            }
+
+            @Override
+            public boolean optional() {
+                return false;
+            }
+
+            @Override
+            public Class<? extends Annotation> annotationType() {
+                return Dependency.class;
+            }
+        };
+    }
+
+    public Dependency getSpongeAPIDep() {
+        return new Dependency() {
+            @Override
+            public String value() {
+                return "spongeapi";
+            }
+
+            @Override
+            public String version() {
+                return processingEnv.getOptions().getOrDefault("cubeengine.module.sponge.version", "unknown");
             }
 
             @Override
