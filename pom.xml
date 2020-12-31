@@ -11,7 +11,7 @@
 
     <artifactId>plugin-gen</artifactId>
     <name>CubeEngine Plugin Generator</name>
-    <version>1.0.4-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
     <description>Generates necessary plugin glue code for CubeEngine modules.</description>
 
     <scm>
