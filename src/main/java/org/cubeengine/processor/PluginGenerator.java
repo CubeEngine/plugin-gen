@@ -106,7 +106,7 @@ public class PluginGenerator extends AbstractProcessor
             sourceVersion = "unknown";
         }
         String version = processingEnv.getOptions().getOrDefault("cubeengine.module.version","unknown");
-        String id = "cubeengine-" + processingEnv.getOptions().getOrDefault("cubeengine.module.id",element.getSimpleName().toString().toLowerCase());
+        String id = "cubeengine-" + processingEnv.getOptions().getOrDefault("cubeengine.module.id", element.getSimpleName().toString().toLowerCase());
         if (core) id = "cubeengine-core";
         String name = "CubeEngine - " + processingEnv.getOptions().getOrDefault("cubeengine.module.name","unknown");
         String description = processingEnv.getOptions().getOrDefault("cubeengine.module.description","unknown");
@@ -115,55 +115,57 @@ public class PluginGenerator extends AbstractProcessor
 
         try (BufferedWriter writer = newSourceFile(packageName, pluginName))
         {
-            writer.write("package " + packageName + ";\n\n");
-            writer.write("import com.google.inject.Inject;\n");
-            writer.write("import com.google.inject.Injector;\n");
-            writer.write("import org.spongepowered.plugin.jvm.Plugin;\n");
-            writer.write("import org.cubeengine.libcube.CubeEnginePlugin;\n");
+            writer.write(String.format("""
+                    package %s;
+                    
+                    import com.google.inject.Inject;
+                    import com.google.inject.Injector;
+                    import org.spongepowered.plugin.builtin.jvm.Plugin;
+                    import org.cubeengine.libcube.CubeEnginePlugin;
+                    """, packageName));
             if (core)
             {
-                writer.write("import org.apache.logging.log4j.Logger;\n");
-                writer.write("import com.google.inject.Injector;\n");
-                writer.write("import org.spongepowered.plugin.PluginContainer;\n");
-                writer.write("import org.cubeengine.libcube.CorePlugin;\n");
-                writer.write("import org.spongepowered.api.config.ConfigDir;\n");
-                writer.write("import java.nio.file.Path;\n");
+                writer.write("""
+                            import org.apache.logging.log4j.Logger;
+                            import com.google.inject.Injector;
+                            import org.spongepowered.plugin.PluginContainer;
+                            import org.cubeengine.libcube.CorePlugin;
+                            import org.spongepowered.api.config.ConfigDir;
+                            import java.nio.file.Path;
+                            """);
             }
             else
             {
                 writer.write("import org.cubeengine.libcube.LibCube;\n");
             }
             writer.write("import org.spongepowered.api.Sponge;\n");
-            writer.write(String.format("import %s;\n", moduleClass));
-            writer.write("\n");
-            writer.write(String.format("@Plugin(%s.%s)\n",
-                    pluginName, simpleName.toUpperCase() + "_ID"));
-            writer.write(String.format(
-                    "public class %s extends %s\n"
-                            + "{\n"
-                            + "    public static final String %s = \"%s\";\n"
-                            + "    public static final String %s = \"%s\";\n"
-                            + "\n"
-                            + "    %s\n"
-                            + "    public %s(%s)\n"
-                            + "    {\n"
-                            + "         super(%s);\n"
-                            + "    }\n"
-                            + "\n"
-                            + "    public String sourceVersion()\n"
-                            + "    {\n"
-                            + "        return \"%s\";\n"
-                            + "    }\n"
-                            + "}\n",
-                    pluginName,
-                    core ? "CorePlugin" : "CubeEnginePlugin",
-                    simpleName.toUpperCase() + "_ID",
-                    id,
-                    simpleName.toUpperCase() + "_VERSION",
-                    version,
+            writer.write(String.format("import %s;\n\n", moduleClass));
+
+            writer.write(String.format("""
+                            @Plugin(%s.%s)
+                            public class %s extends %s
+                            {
+                                public static final String %s = "%s";
+                                public static final String %s = "%s";
+
+                                %s
+                                public %s(%s)
+                                {
+                                     super(%s);
+                                }
+
+                                public String sourceVersion()
+                                {
+                                    return "%s";
+                                }
+                            }
+                            """,
+                    pluginName, simpleName.toUpperCase() + "_ID",
+                    pluginName, core ? "CorePlugin" : "CubeEnginePlugin",
+                    simpleName.toUpperCase() + "_ID", id,
+                    simpleName.toUpperCase() + "_VERSION", version,
                     core ? "@Inject" : "",
-                    pluginName,
-                    core ? "@ConfigDir(sharedRoot = true) Path path, Logger logger, Injector injector, PluginContainer container" : "",
+                    pluginName, core ? "@ConfigDir(sharedRoot = true) Path path, Logger logger, Injector injector, PluginContainer container" : "",
                     core ? "path, logger, injector, container" : element.getSimpleName() + ".class",
                     sourceVersion));
         }
@@ -172,46 +174,61 @@ public class PluginGenerator extends AbstractProcessor
             throw new IllegalStateException(e);
         }
 
-        try (BufferedWriter writer = newResourceFile("", "META-INF/plugins.json"))
+        try (BufferedWriter writer = newResourceFile("", "META-INF/sponge_plugins.json"))
         {
-            final String tab3 = "            ";
-            final String tab4 = "                ";
+            final String jsonDeps = allDeps.stream().map(d -> String.format("""
+                            {
+                                "id": "%s",
+                                "version": "%s",
+                                "optional": %s
+                            }""",
+                            d.value(), d.version(), d.optional()))
+                    .collect(Collectors.joining(",\n")).indent(8).stripTrailing();
+            String plugin = String.format("""
+                    {
+                        "id": "%s",
+                        "name": "%s",
+                        "version": "%s",
+                        "entrypoint": "%s",
+                        "description": "%s",
+                        "links": {
+                            "homepage": "%s"
+                        },
+                        "contributors": [
+                            {
+                                "name": "%s"
+                            }
+                        ],
+                        "dependencies": [
+                    %s
+                        ],
+                        "properties": {
+                            "source-version": "%s"
+                        }
+                    }""",
+                id, name, version, packageName + "." + pluginName, description,
+                url, // TODO source/issues url
+                team,
+                jsonDeps,
+                sourceVersion
+                ).indent(8).stripTrailing();
 
-            writer.write("{\n");
-            writer.write("    \"plugins\": [\n");
-            writer.write("        {\n");
-            writer.write(tab3 + jsonKeyValue("loader", "java_plain"));
-            writer.write(tab3 + jsonKeyValue("id", id));
-            writer.write(tab3 + jsonKeyValue("name", name));
-            writer.write(tab3 + jsonKeyValue("version", version));
-            writer.write(tab3 + jsonKeyValue("main-class", packageName + "." + pluginName));
-            writer.write(tab3 + jsonKeyValue("description", description));
-            writer.write(tab3 + String.format("\"links\": {\n%s},\n",
-                    tab4 + jsonKeyValue("homepage", url, true) +
-                    tab3
-// TODO source/issues urls
-//                   + jsonKeyValue("source", )
-//                   + jsonKeyValue("issues", )
+            writer.write(String.format("""
+                    {
+                        "loader": {
+                            "name": "%s",
+                            "version": "%s"
+                        },
+                        "license": "%s",
+                        "plugins": [
+                    %s
+                        ]
+                    }
+                    """,
+                    "java_plain", "1.0",
+                    "GPLv3",
+                    plugin
                     ));
-            writer.write(tab3 + String.format("\"contributors\": [{\n%s}],\n",
-                    tab4 + jsonKeyValue("name", team, true) +
-                    tab3
-//                   + "," + jsonKeyValue("name", team)
-                    ));
-            final String jsonDeps = allDeps.stream().map(d -> String.format("{\n%s}",
-                    tab4 + jsonKeyValue("id", d.value()) +
-                    tab4 + jsonKeyValue("version", d.version(), !d.optional()) +
-                    (d.optional() ?  tab4 + jsonKeyValue("optional", true, true) : "") +
-                    tab3))
-                    .collect(Collectors.joining(",\n" + tab3));
-            writer.write(tab3 + String.format("\"dependencies\": [%s],\n", jsonDeps));
-            writer.write(tab3 + String.format("\"extra\": {\n%s}\n",
-                    tab4 + jsonKeyValue("source-version", sourceVersion, true) +
-                    tab3
-                    ));
-            writer.write("        }\n");
-            writer.write("    ]\n");
-            writer.write("}\n");
         }
         catch (IOException e)
         {
@@ -236,18 +253,6 @@ public class PluginGenerator extends AbstractProcessor
         {
             throw new IllegalStateException(e);
         }
-    }
-
-    private String jsonKeyValue(String key, String value) {
-        return this.jsonKeyValue(key, value, false);
-    }
-
-    private String jsonKeyValue(String key, String value, boolean last) {
-        return String.format("\"%s\": \"%s\"%s\n", key, value, last ? "" : ",");
-    }
-
-    private String jsonKeyValue(String key, boolean value, boolean last) {
-        return String.format("\"%s\": %s%s\n", key, value, last ? "" : ",");
     }
 
     public Dependency getCoreDep() {
