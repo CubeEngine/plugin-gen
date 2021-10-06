@@ -121,6 +121,14 @@ public class PluginGenerator extends AbstractProcessor
                     import com.google.inject.Inject;
                     import com.google.inject.Injector;
                     import org.spongepowered.plugin.builtin.jvm.Plugin;
+                    import org.spongepowered.api.event.Listener;
+                    import org.spongepowered.api.event.Order;
+                    import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+                    import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+                    import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+                    import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+                    import org.spongepowered.api.Server;
+                    import org.spongepowered.api.command.Command;
                     import org.cubeengine.libcube.CubeEnginePlugin;
                     """, packageName));
             if (core)
@@ -157,6 +165,30 @@ public class PluginGenerator extends AbstractProcessor
                                 public String sourceVersion()
                                 {
                                     return "%s";
+                                }
+                                
+                                @Override @Listener
+                                public void onConstruction(ConstructPluginEvent event) 
+                                {
+                                    super.onConstruction(event);
+                                }
+                                
+                                @Override @Listener(order = Order.EARLY)
+                                public void onInit(StartingEngineEvent<Server> event)
+                                {
+                                    super.onInit(event);
+                                }
+                                
+                                @Override @Listener(order = Order.FIRST)
+                                public void onStarted(StartedEngineEvent<Server> event)
+                                {
+                                    super.onStarted(event);
+                                }
+                                
+                                @Override @Listener
+                                public void onRegisterCommand(final RegisterCommandEvent<Command.Parameterized> event)
+                                {
+                                    super.onRegisterCommand(event);
                                 }
                             }
                             """,
