@@ -43,7 +43,7 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 
-@SupportedOptions({"cubeengine.module.version", "cubeengine.module.id", "cubeengine.module.name", "cubeengine.module.description", "cubeengine.module.team", "cubeengine.module.url", "cubeengine.module.libcube.version", "cubeengine.module.sponge.version"})
+@SupportedOptions({"cubeengine.module.version", "cubeengine.module.sourceversion", "cubeengine.module.id", "cubeengine.module.name", "cubeengine.module.description", "cubeengine.module.team", "cubeengine.module.url", "cubeengine.module.libcube.version", "cubeengine.module.sponge.version"})
 @SupportedAnnotationTypes({ PLUGIN_ANNOTATION, CORE_ANNOTATION, DEP_ANNOTATION })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class PluginGenerator extends AbstractProcessor
