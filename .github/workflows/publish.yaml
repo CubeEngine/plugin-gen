@@ -21,4 +21,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - name: Publish package
-        run: mvn package deploy -U
+        run: mvn -U package deploy
