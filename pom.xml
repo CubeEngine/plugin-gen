@@ -57,7 +57,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>16</java.version>
+        <java.version>17</java.version>
         <releaseProfile>release-plugin-gen</releaseProfile>
     </properties>
 
@@ -78,15 +78,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.10.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <release>${java.version}</release>
                     <optimize>true</optimize>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
                     <!-- Disable annotation processing for ourselves.-->
                     <compilerArgument>-proc:none</compilerArgument>
+                    <target>15</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -97,7 +97,7 @@
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>3.0</version>
+                <version>4.1</version>
                 <configuration>
                     <strictCheck>true</strictCheck>
                     <header>com/mycila/maven/plugin/license/templates/GPL-3.txt</header>
