@@ -337,7 +337,11 @@ public class PluginGenerator extends AbstractProcessor
 
     private BufferedWriter newSourceFile(Name packageName, String pluginName) throws IOException
     {
-        FileObject obj = this.processingEnv.getFiler().createSourceFile(packageName + "." + pluginName);
+        String name = pluginName;
+        if (!packageName.isEmpty()) {
+            name = packageName + "." + name;
+        }
+        FileObject obj = this.processingEnv.getFiler().createSourceFile(name);
         return new BufferedWriter(obj.openWriter());
     }
 
