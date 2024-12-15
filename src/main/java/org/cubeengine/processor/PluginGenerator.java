@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
@@ -45,7 +47,7 @@ import javax.tools.FileObject;
 
 @SupportedOptions({"cubeengine.module.version", "cubeengine.module.sourceversion", "cubeengine.module.id", "cubeengine.module.name", "cubeengine.module.description", "cubeengine.module.team", "cubeengine.module.url", "cubeengine.module.libcube.version", "cubeengine.module.sponge.version"})
 @SupportedAnnotationTypes({ PLUGIN_ANNOTATION, CORE_ANNOTATION, DEP_ANNOTATION })
-@SupportedSourceVersion(SourceVersion.RELEASE_17)
+@SupportedSourceVersion(SourceVersion.RELEASE_21)
 public class PluginGenerator extends AbstractProcessor
 {
 
@@ -53,6 +55,16 @@ public class PluginGenerator extends AbstractProcessor
     static final String PLUGIN_ANNOTATION = PACKAGE + "Module";
     static final String CORE_ANNOTATION = PACKAGE + "Core";
     static final String DEP_ANNOTATION = PACKAGE + "Dependency";
+
+    private Messager messager;
+
+    @Override
+    public synchronized void init(ProcessingEnvironment processingEnv) {
+        super.init(processingEnv);
+        messager = processingEnv.getMessager();
+    }
+
+    private boolean generated = false;
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv)
@@ -62,8 +74,12 @@ public class PluginGenerator extends AbstractProcessor
             return false;
         }
 
+        if (this.generated) {
+            return false;
+        }
         generateModulePlugin(roundEnv);
         generateCorePlugin(roundEnv);
+        this.generated = true;
 
         return false;
     }
@@ -72,13 +88,18 @@ public class PluginGenerator extends AbstractProcessor
     {
         for (Element el : roundEnv.getElementsAnnotatedWith(Core.class))
         {
+            messager.printNote("Generating core plugin");
             buildSource((TypeElement) el, new ArrayList<>(), true);
         }
     }
 
     public void generateModulePlugin(RoundEnvironment roundEnv)
     {
-        for (Element el : roundEnv.getElementsAnnotatedWith(Module.class))
+        final Set<? extends Element> moduleSet = roundEnv.getElementsAnnotatedWith(Module.class);
+        if (moduleSet.size() > 0) {
+            messager.printNote("Generating %d modules".formatted(moduleSet.size()));
+        }
+        for (Element el : moduleSet)
         {
             final TypeElement element = (TypeElement) el;
 
