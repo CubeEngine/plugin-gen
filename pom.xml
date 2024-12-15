@@ -81,7 +81,6 @@
                 <version>3.13.0</version>
                 <configuration>
                     <release>${java.version}</release>
-                    <optimize>true</optimize>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
                     <!-- Disable annotation processing for ourselves.-->
@@ -100,10 +99,14 @@
                 <version>4.6</version>
                 <configuration>
                     <strictCheck>true</strictCheck>
-                    <header>com/mycila/maven/plugin/license/templates/GPL-3.txt</header>
-                    <includes>
-                        <include>src/**/*.java</include>
-                    </includes>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>com/mycila/maven/plugin/license/templates/GPL-3.txt</header>
+                            <includes>
+                                <include>src/**/*.java</include>
+                            </includes>
+                        </licenseSet>
+                    </licenseSets>
                     <properties>
                         <owner>CubeEngine</owner>
                         <email>development@cubeengine.org</email>
