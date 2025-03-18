@@ -127,8 +127,8 @@ public class PluginGenerator extends AbstractProcessor
             sourceVersion = "unknown";
         }
         String version = processingEnv.getOptions().getOrDefault("cubeengine.module.version","unknown");
-        String id = "cubeengine-" + processingEnv.getOptions().getOrDefault("cubeengine.module.id", element.getSimpleName().toString().toLowerCase());
-        if (core) id = "cubeengine-core";
+        String id = "cubeengine_" + processingEnv.getOptions().getOrDefault("cubeengine.module.id", element.getSimpleName().toString().toLowerCase());
+        if (core) id = "cubeengine_core";
         String name = "CubeEngine - " + processingEnv.getOptions().getOrDefault("cubeengine.module.name","unknown");
         String description = processingEnv.getOptions().getOrDefault("cubeengine.module.description","unknown");
         String team = processingEnv.getOptions().getOrDefault("cubeengine.module.team","unknown") + " Team";
@@ -137,31 +137,31 @@ public class PluginGenerator extends AbstractProcessor
         try (BufferedWriter writer = newSourceFile(packageName, pluginName))
         {
             writer.write(String.format("""
-                    package %s;
-                    
-                    import com.google.inject.Inject;
-                    import com.google.inject.Injector;
-                    import org.spongepowered.plugin.builtin.jvm.Plugin;
-                    import org.spongepowered.api.event.Listener;
-                    import org.spongepowered.api.event.Order;
-                    import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
-                    import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
-                    import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
-                    import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
-                    import org.spongepowered.api.Server;
-                    import org.spongepowered.api.command.Command;
-                    import org.cubeengine.libcube.CubeEnginePlugin;
-                    """, packageName));
+                package %s;
+                
+                import com.google.inject.Inject;
+                import com.google.inject.Injector;
+                import org.spongepowered.plugin.builtin.jvm.Plugin;
+                import org.spongepowered.api.event.Listener;
+                import org.spongepowered.api.event.Order;
+                import org.spongepowered.api.event.lifecycle.ConstructPluginEvent;
+                import org.spongepowered.api.event.lifecycle.RegisterCommandEvent;
+                import org.spongepowered.api.event.lifecycle.StartedEngineEvent;
+                import org.spongepowered.api.event.lifecycle.StartingEngineEvent;
+                import org.spongepowered.api.Server;
+                import org.spongepowered.api.command.Command;
+                import org.cubeengine.libcube.CubeEnginePlugin;
+                """, packageName));
             if (core)
             {
                 writer.write("""
-                            import org.apache.logging.log4j.Logger;
-                            import com.google.inject.Injector;
-                            import org.spongepowered.plugin.PluginContainer;
-                            import org.cubeengine.libcube.CorePlugin;
-                            import org.spongepowered.api.config.ConfigDir;
-                            import java.nio.file.Path;
-                            """);
+                        import org.apache.logging.log4j.Logger;
+                        import com.google.inject.Injector;
+                        import org.spongepowered.plugin.PluginContainer;
+                        import org.cubeengine.libcube.CorePlugin;
+                        import org.spongepowered.api.config.ConfigDir;
+                        import java.nio.file.Path;
+                        """);
             }
             else
             {
@@ -171,48 +171,48 @@ public class PluginGenerator extends AbstractProcessor
             writer.write(String.format("import %s;\n\n", moduleClass));
 
             writer.write(String.format("""
-                            @Plugin(%s.%s)
-                            public class %s extends %s
+                        @Plugin(%s.%s)
+                        public class %s extends %s
+                        {
+                            public static final String %s = "%s";
+                            public static final String %s = "%s";
+
+                            %s
+                            public %s(%s)
                             {
-                                public static final String %s = "%s";
-                                public static final String %s = "%s";
-
-                                %s
-                                public %s(%s)
-                                {
-                                     super(%s);
-                                }
-
-                                public String sourceVersion()
-                                {
-                                    return "%s";
-                                }
-                                
-                                @Override @Listener
-                                public void onConstruction(ConstructPluginEvent event) 
-                                {
-                                    super.onConstruction(event);
-                                }
-                                
-                                @Override @Listener(order = Order.EARLY)
-                                public void onInit(StartingEngineEvent<Server> event)
-                                {
-                                    super.onInit(event);
-                                }
-                                
-                                @Override @Listener(order = Order.FIRST)
-                                public void onStarted(StartedEngineEvent<Server> event)
-                                {
-                                    super.onStarted(event);
-                                }
-                                
-                                @Override @Listener
-                                public void onRegisterCommand(final RegisterCommandEvent<Command.Parameterized> event)
-                                {
-                                    super.onRegisterCommand(event);
-                                }
+                                 super(%s);
                             }
-                            """,
+
+                            public String sourceVersion()
+                            {
+                                return "%s";
+                            }
+                            
+                            @Override @Listener
+                            public void onConstruction(ConstructPluginEvent event) 
+                            {
+                                super.onConstruction(event);
+                            }
+                            
+                            @Override @Listener(order = Order.EARLY)
+                            public void onInit(StartingEngineEvent<Server> event)
+                            {
+                                super.onInit(event);
+                            }
+                            
+                            @Override @Listener(order = Order.FIRST)
+                            public void onStarted(StartedEngineEvent<Server> event)
+                            {
+                                super.onStarted(event);
+                            }
+                            
+                            @Override @Listener
+                            public void onRegisterCommand(final RegisterCommandEvent<Command.Parameterized> event)
+                            {
+                                super.onRegisterCommand(event);
+                            }
+                        }
+                        """,
                     pluginName, simpleName.toUpperCase() + "_ID",
                     pluginName, core ? "CorePlugin" : "CubeEnginePlugin",
                     simpleName.toUpperCase() + "_ID", id,
@@ -259,12 +259,12 @@ public class PluginGenerator extends AbstractProcessor
                             "source-version": "%s"
                         }
                     }""",
-                id, name, version, packageName + "." + pluginName, description,
-                url, // TODO source/issues url
-                team,
-                jsonDeps,
-                sourceVersion
-                ).indent(8).stripTrailing();
+                    id, name, version, packageName + "." + pluginName, description,
+                    url, // TODO source/issues url
+                    team,
+                    jsonDeps,
+                    sourceVersion
+            ).indent(8).stripTrailing();
 
             writer.write(String.format("""
                     {
@@ -281,7 +281,7 @@ public class PluginGenerator extends AbstractProcessor
                     "java_plain", "1.0",
                     "GPLv3",
                     plugin
-                    ));
+            ));
         }
         catch (IOException e)
         {
@@ -290,17 +290,7 @@ public class PluginGenerator extends AbstractProcessor
 
         try (BufferedWriter writer = newResourceFile("", "META-INF/MANIFEST.MF"))
         {
-            writer.write("Manifest-Version: 1.0");
-
-        }
-        catch (IOException e)
-        {
-            throw new IllegalStateException(e);
-        }
-
-
-        try (BufferedWriter writer = newResourceFile("assets", id + "/lang/en_us.lang"))
-        {
+            writer.write("Manifest-Version: 1.0\n");
         }
         catch (IOException e)
         {
@@ -312,7 +302,7 @@ public class PluginGenerator extends AbstractProcessor
         return new Dependency() {
             @Override
             public String value() {
-                return "cubeengine-core";
+                return "cubeengine_core";
             }
 
             @Override
